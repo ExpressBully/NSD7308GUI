@@ -1,5 +1,7 @@
 #include "ImGuiApp.h"
 #include "ImGuiWidget/ExamplePage.h"
+#include "ImGuiWidget/TestClass.h"
+
 ImGuiApp::ImGuiApp(std::weak_ptr<MSCWindow> pWindow, bool bDockingEnabled)
     : mpWindow(pWindow),
       mbDockingEnabled(bDockingEnabled)
@@ -17,6 +19,15 @@ void ImGuiApp::OnUpdate()
 void ImGuiApp::SetDockingEnabled(bool bEnabled)
 {
     mbDockingEnabled = bEnabled;
+    ImGuiIO& io = ImGui::GetIO();
+    if (bEnabled)
+    {
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    }
+    else
+    {
+        io.ConfigFlags &= ~ImGuiConfigFlags_DockingEnable;
+    }
 }
 
 void ImGuiApp::ImGuiInit()
@@ -54,9 +65,12 @@ void ImGuiApp::ImGuiInit()
         ImGui_ImplOpenGL3_Init("#version 410");
     }
 
-    // Insert example widgets here
+    // Insert example widgets here 
     std::shared_ptr<ExamplePage> pExampleWidget = std::make_shared<ExamplePage>();
+    std::shared_ptr<TestClass> pTestClassWidget = std::make_shared<TestClass>();
+
     mWidgets.emplace_back(pExampleWidget);
+    mWidgets.emplace_back(pTestClassWidget);
 }
 
 void ImGuiApp::ImGuiBeginRender()

@@ -19,6 +19,8 @@ void MSCWindow::OnUpdate()
 {
     glfwPollEvents();
     glfwSwapBuffers(mpWindow);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.00f);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 const unsigned int MSCWindow::GetWidth() const
@@ -69,7 +71,7 @@ void MSCWindow::Init(int width, int height, const std::string& title)
     int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     glfwSetWindowUserPointer(mpWindow, &mData);
 
-    // WindowResizeEvent
+    // WindowResizeEvent lambda函数[](){}
     glfwSetWindowSizeCallback(mpWindow, [](GLFWwindow* tpWindow, int width, int height)
         {
             // Update window size   

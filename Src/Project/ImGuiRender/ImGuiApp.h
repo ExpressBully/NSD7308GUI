@@ -8,6 +8,7 @@
 #include "ImGuiBackend/ImGuiGlfw/imgui_impl_glfw.h"
 #include "../Window/MSCWindow.h"
 
+
 class WidgetBase;
 class ImGuiApp
 {
@@ -16,7 +17,7 @@ public:
     {
         Dark,
         Light
-        // ...
+        // ... 
     };
 public:
     ImGuiApp(std::weak_ptr<MSCWindow> pWindow, bool bDockingEnabled = false);
