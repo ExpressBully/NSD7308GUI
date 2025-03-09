@@ -1,6 +1,8 @@
 #include "ImGuiApp.h"
 #include "ImGuiWidget/ExamplePage.h"
 #include "ImGuiWidget/TestClass.h"
+#include "ImGuiWidget/PWM_Slider.h"
+#include "ImGuiWidget/UART_DEC.h"
 
 ImGuiApp::ImGuiApp(std::weak_ptr<MSCWindow> pWindow, bool bDockingEnabled)
     : mpWindow(pWindow),
@@ -66,11 +68,23 @@ void ImGuiApp::ImGuiInit()
     }
 
     // Insert example widgets here 
-    std::shared_ptr<ExamplePage> pExampleWidget = std::make_shared<ExamplePage>();
-    std::shared_ptr<TestClass> pTestClassWidget = std::make_shared<TestClass>();
+    /***************
+    1. Eample
+    2.TestClass:Conclude a botton and PopupModal
+    3.PWM_Slider
+    4.
 
-    mWidgets.emplace_back(pExampleWidget);
+    *******************/
+    //std::shared_ptr<ExamplePage> pExampleWidget = std::make_shared<ExamplePage>();
+    std::shared_ptr<TestClass> pTestClassWidget = std::make_shared<TestClass>();
+    std::shared_ptr<PWM_Slider> pPWM_SliderWidget = std::make_shared<PWM_Slider>();
+    std::shared_ptr<UART_DEC> pUART_DECWidget = std::make_shared<UART_DEC>();
+
+
+    //mWidgets.emplace_back(pExampleWidget);
     mWidgets.emplace_back(pTestClassWidget);
+    mWidgets.emplace_back(pPWM_SliderWidget);
+    mWidgets.emplace_back(pUART_DECWidget);
 }
 
 void ImGuiApp::ImGuiBeginRender()

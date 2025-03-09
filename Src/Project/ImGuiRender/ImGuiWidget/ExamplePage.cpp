@@ -12,9 +12,9 @@ ExamplePage::~ExamplePage()
 void ExamplePage::Render()
 {
 
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x + 200, ImGui::GetIO().DisplaySize.y + 150), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(180, 100), ImGuiCond_FirstUseEver);
-    //ImGui Example
+    //ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x + 200, ImGui::GetIO().DisplaySize.y + 150), ImGuiCond_FirstUseEver);
+    //ImGui::SetNextWindowSize(ImVec2(180, 100), ImGuiCond_FirstUseEver);
+    ////ImGui Example
         // Create a window to hold all the controls
     ImGui::Begin("Dear ImGui Controls");
 
@@ -93,32 +93,32 @@ void ExamplePage::Render()
 
 // 假设你已经完成了ImGui的初始化和配置
 
-// 设置窗口在右下角显示
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 200, ImGui::GetIO().DisplaySize.y - 150), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(180, 100), ImGuiCond_FirstUseEver);
-
-    // 创建窗口
-    ImGui::Begin("请使用", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-
-    // 创建按钮
-    if (ImGui::Button("开始")) {
-        // 点击按钮后弹出小窗口
-        ImGui::OpenPopup("开始使用");
-    }
-
-    // 创建弹窗
-    if (ImGui::BeginPopupModal("开始使用", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("begin to use");
-        if (ImGui::Button("close")) {
-            ImGui::CloseCurrentPopup();
-        }
-        ImGui::EndPopup();
-    }
-
-    // 结束窗口
-    ImGui::End();
-
-    // 假设你已经完成了ImGui的渲染和清理
+//// 设置窗口在右下角显示
+//    ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 200, ImGui::GetIO().DisplaySize.y - 150), ImGuiCond_Always);
+//    //ImGui::SetNextWindowSize(ImVec2(180, 100), ImGuiCond_Always);
+//
+//    // 创建窗口
+//    ImGui::Begin("Use Please", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+//
+//    // 创建按钮
+//    if (ImGui::Button("Begin")) {
+//        // 点击按钮后弹出小窗口
+//        ImGui::OpenPopup("Begin to Use");
+//    }
+//
+//    // 创建弹窗
+//    if (ImGui::BeginPopupModal("Begin to Use", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+//        ImGui::Text("begin to use");
+//        if (ImGui::Button("close")) {
+//            ImGui::CloseCurrentPopup();
+//        }
+//        ImGui::EndPopup();
+//    }
+//
+//    // 结束窗口
+//    ImGui::End();
+//
+//    // 假设你已经完成了ImGui的渲染和清理
 
 
 }

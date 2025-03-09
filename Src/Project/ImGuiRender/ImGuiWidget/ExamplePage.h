@@ -5,11 +5,11 @@
 
 class ExamplePage : public WidgetBase
 {
-public:
-    ExamplePage();
-    virtual ~ExamplePage();
+    public:
+        ExamplePage();
+        virtual ~ExamplePage();
 
-    virtual void Render() override;
+         virtual void Render() override;
 };
 
 #endif // EXAMPLE_PAGE_H

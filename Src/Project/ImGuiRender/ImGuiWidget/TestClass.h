@@ -1,5 +1,6 @@
 #ifndef  TESTCLASS_H
 #define  TESTCLASS_H
+
 #include "WidgetBase.h"
 
 class TestClass : public WidgetBase
