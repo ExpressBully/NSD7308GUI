@@ -1,106 +1,135 @@
-#include <winreg.h>
-#include <tchar.h>
-#include <stdexcept>
-#include <vector>
-#include <string>
-#include <mutex>
-#include <memory>
-#include <algorithm>
-#include <iostream>
 #include "PortData.h"
-
 #include "PortManager.h"
+#include <iostream>
+#include <thread>
 
-PortManager& PortManager::GetInstance() 
+namespace Unit
+{
+    static std::vector<std::string> GetAvailablePorts()
+    {
+        std::vector<std::string> portList;
+
+        // 打开注册表中的串口键
+        HKEY hKey;
+        if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, "HARDWARE\\DEVICEMAP\\SERIALCOMM", 0, KEY_READ, &hKey) != ERROR_SUCCESS)
+        {
+            std::cerr << "Failed to open registry key." << std::endl;
+            return portList;
+        }
+
+        // 枚举注册表中的值
+        char valueName[256];
+        char portName[256];
+        DWORD valueNameSize, portNameSize, type;
+        DWORD index = 0;
+
+        while (true)
+        {
+            valueNameSize = sizeof(valueName);
+            portNameSize = sizeof(portName);
+            if (RegEnumValueA(hKey, index, valueName, &valueNameSize, NULL, &type, (LPBYTE)portName, &portNameSize) != ERROR_SUCCESS)
+            {
+                break;  // 枚举结束
+            }
+
+            if (type == REG_SZ)
+            {
+                portList.push_back(portName);
+            }
+
+            index++;
+        }
+
+        // 关闭注册表键
+        RegCloseKey(hKey);
+
+        return portList;
+    }
+}
+
+PortManager& PortManager::GetInstance()
 {
     static PortManager instance;
     return instance;
 }
 
-PortManager::PortManager()
+PortManager::PortManager() {}
+
+PortManager::~PortManager() {}
+
+void PortManager::RefreshPortList()
 {
-
-}
-
-
-void PortManager::RefreshPortList() {
     std::lock_guard<std::mutex> lock(mMutex);
     mPortList.clear();
-
-    HKEY hKey;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-        _T("HARDWARE\\DEVICEMAP\\SERIALCOMM"), 0, KEY_READ, &hKey) != ERROR_SUCCESS)
-    {
-        throw std::runtime_error("Failed to access registry");
-    }
-
-    TCHAR portValue[256];
-    DWORD index = 0;
-    DWORD type = REG_SZ;
-    DWORD size = sizeof(portValue);
-
-    while (ERROR_SUCCESS == RegEnumValue(
-        hKey,
-        index++,
-        nullptr,    // 不获取值名称
-        nullptr,     // 不获取名称长度
-        nullptr,     // 保留参数必须为NULL
-        &type,       // 接收注册表值类型
-        reinterpret_cast<LPBYTE>(portValue),
-        &size        // 输入时为缓冲区总字节数，输出时为实际数据字节数
-    )) {
-        // 添加终止符
-        portValue[size / sizeof(TCHAR)] = _T('\0');
-
-        if (type == REG_SZ) {
-#ifdef UNICODE
-            std::wstring ws(portValue);
-#else
-            std::string ws(portValue);
-#endif
-            mPortList.push_back(ws);
-        }
-        size = sizeof(portValue); // 重置为字节数
-    }
-    RegCloseKey(hKey);
+    mPortList = Unit::GetAvailablePorts();
 }
 
-/******************** 端口操作 ​********************/
-void PortManager::SetCurrentPort(const std::string& portName)
+bool PortManager::SetCurrentPort(const std::string& portName)
 {
     std::lock_guard<std::mutex> lock(mMutex);
 
-    // 验证端口有效性
     if (std::find(mPortList.begin(), mPortList.end(), portName) == mPortList.end())
     {
-        throw std::runtime_error("Port not available: " + portName);
+        return false;
     }
 
-
-    // 创建新端口实例
-    HANDLE hPort = CreatePortHandle(portName);
+    HANDLE hPort = CreatePort(portName);
     DCB dcb = GetDefaultPortConfig();
 
-    mActivePort->ResetPort(hPort, dcb);
+    mActivePort = std::make_unique<PortData>(hPort, dcb);
+    mCurrentPort = portName;
+    return true;
 }
 
-HANDLE PortManager::CreatePortHandle(const std::string& portName) const 
+HANDLE PortManager::CreatePort(const std::string& portName) const
 {
-    const std::string fullName = "\\\\.\\" + portName;
+    // 将串口名称转换为 Windows API 所需的格式
+    std::string fullPortName = "\\\\.\\" + portName;;  // 对于 COM10 及以上的串口，需要添加前缀 "\\.\"
+
+    // 使用 CreateFileA 打开串口
     HANDLE hPort = CreateFileA(
-        fullName.c_str(),
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        nullptr,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL,
-        nullptr
+        fullPortName.c_str(),               // 串口名称
+        GENERIC_READ | GENERIC_WRITE,       // 读写权限
+        0,                                  // 共享模式（0 表示独占）
+        NULL,                               // 安全属性
+        OPEN_EXISTING,                      // 打开已存在的设备
+        FILE_ATTRIBUTE_NORMAL,              // 文件属性
+        NULL                                // 模板文件句柄
     );
 
-    if (hPort == INVALID_HANDLE_VALUE) {
-        throw std::runtime_error("CreateFile failed (0x" +
-            std::to_string(GetLastError()) + ")");
+    // 检查串口是否成功打开
+    if (hPort == INVALID_HANDLE_VALUE)
+    {
+        DWORD error = GetLastError();
+        std::cerr << "Failed to open port " << portName << ", error code: " << error << std::endl;
+        return INVALID_HANDLE_VALUE;
     }
+
+    // 获取默认串口配置
+    DCB dcb = GetDefaultPortConfig();
+
+    // 应用串口配置
+    if (!SetCommState(hPort, &dcb))
+    {
+        std::cerr << "Failed to set comm state for port " << portName << std::endl;
+        CloseHandle(hPort);
+        return INVALID_HANDLE_VALUE;
+    }
+
+    // 设置串口超时参数
+    COMMTIMEOUTS timeouts = { 0 };
+    timeouts.ReadIntervalTimeout = 50;         // 字符间超时
+    timeouts.ReadTotalTimeoutConstant = 50;    // 读操作固定超时
+    timeouts.WriteTotalTimeoutConstant = 50;   // 写操作固定超时
+
+    if (!SetCommTimeouts(hPort, &timeouts))
+    {
+        std::cerr << "Failed to set comm timeouts for port " << portName << std::endl;
+        CloseHandle(hPort);
+        return INVALID_HANDLE_VALUE;
+    }
+
+    // 返回成功打开的串口句柄
     return hPort;
 }
 
@@ -117,23 +146,43 @@ DCB PortManager::GetDefaultPortConfig() const
     return dcb;
 }
 
-/******************** 数据通信 ​********************/
-void PortManager::SendData(const std::string& data) 
+void PortManager::SendData(const std::string& data)
 {
     std::lock_guard<std::mutex> lock(mMutex);
-    if (mActivePort) 
+    if (mActivePort)
     {
         mActivePort->SendData(data);
     }
 }
 
-void PortManager::ReceiveData(std::string& data) 
+void PortManager::ReceiveData(std::string& data)
 {
     std::lock_guard<std::mutex> lock(mMutex);
-    if (mActivePort) 
+    if (mActivePort)
     {
         mActivePort->ReceiveData(data);
     }
+}
+
+void PortManager::SetDataReceivedCallback(DataReceivedCallback callback)
+{
+    if (mActivePort)
+    {
+        mActivePort->SetDataReceivedCallback(callback);
+    }
+}
+
+void PortManager::SetErrorCallback(ErrorCallback callback)
+{
+    if (mActivePort)
+    {
+        mActivePort->SetErrorCallback(callback);
+    }
+}
+
+bool PortManager::IsPortOpen() const
+{
+    return mActivePort && mActivePort->IsOpen();
 }
 
 const std::string& PortManager::GetCurrentPort() const noexcept
@@ -141,7 +190,7 @@ const std::string& PortManager::GetCurrentPort() const noexcept
     return mCurrentPort;
 }
 
-const std::vector<std::string>& PortManager::GetPortList() const noexcept 
+const std::vector<std::string>& PortManager::GetPortList() const noexcept
 {
     return mPortList;
 }
