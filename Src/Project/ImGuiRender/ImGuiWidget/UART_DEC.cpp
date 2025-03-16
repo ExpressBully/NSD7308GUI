@@ -2,6 +2,9 @@
 #include "UART_DEC.h"
 #include "imgui/imgui.h"
 #include "../../Port/PortManager.h"
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 UART_DEC::UART_DEC()
     : mIsPortOpen(false)
@@ -62,9 +65,12 @@ void UART_DEC::Render()
         SendData();
     }
 
+    ReceiveData();
+    std::string hexData = ToHexString(mReceiveBuffer);
+
     // 接收数据显示
     ImGui::Text("Received Data:");
-    ImGui::TextWrapped("%s", mReceiveBuffer.c_str());
+    ImGui::TextWrapped("%s", hexData.c_str());
 
     // 清空接收数据按钮
     if (ImGui::Button("Clear Received Data"))
@@ -128,4 +134,28 @@ void UART_DEC::ReceiveData()
             std::cout << "Data received: " << data << std::endl;
         }
     }
+}
+
+std::string UART_DEC::ToHexString(const std::string& data) { //16进制转换函数
+    std::stringstream hexStream;
+    int byteCount = 0;
+
+    for (size_t i = 0; i < data.size(); ++i) {
+        // 将当前字节转换为两位十六进制数
+        hexStream << std::hex << std::setw(2) << std::setfill('0')
+            << static_cast<int>(static_cast<unsigned char>(data[i])) << " ";
+        byteCount++;
+
+        // 每 2 个字节换行
+        if (byteCount % 2 == 0) {
+            hexStream << "\n";
+        }
+    }
+
+    // 如果最后一行不足 2 个字节，补全换行
+    if (byteCount % 2 != 0) {
+        hexStream << "\n";
+    }
+
+    return hexStream.str();
 }

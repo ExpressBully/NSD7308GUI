@@ -5,6 +5,9 @@
 #include <vector>
 #include <string>
 #include <mutex>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 class UART_DEC : public WidgetBase
 {
@@ -21,8 +24,10 @@ private:
     void SendData();         // 发送数据
     void ReceiveData();      // 接收数据
 
+
     std::vector<std::string> mPortList;  // 串口列表
     std::string mSelectedPort;           // 当前选中的串口
+    std::string ToHexString(const std::string& data);
     char mSendBuffer[1024];              // 发送数据缓冲区
     std::string mReceiveBuffer;          // 接收数据缓冲区
     bool mIsPortOpen;                    // 串口是否打开

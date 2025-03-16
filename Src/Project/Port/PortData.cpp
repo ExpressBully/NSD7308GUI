@@ -114,6 +114,7 @@ void PortData::ReceiveData(char* data, int len)
 void PortData::SetDataReceivedCallback(DataReceivedCallback callback)
 {
     mDataReceivedCallback = callback;
+
 }
 
 void PortData::SetErrorCallback(ErrorCallback callback)
