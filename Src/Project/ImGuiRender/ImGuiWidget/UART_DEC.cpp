@@ -108,58 +108,48 @@ void UART_DEC::Render()
     
     
     /////////////
-    // 发送按钮
-    if (ImGui::Button("Send"))
+// 发送和读取按钮
+    bool isSend = ImGui::Button("Send");
+    ImGui::SameLine(); // 让按钮在同一行显示
+    bool isRead = ImGui::Button("Read");
+
+    if (isSend || isRead)
     {
-        //// 将地址和数据转换为字节流
-        //std::vector<uint8_t> addressBytes = HexStringToBytes(addressBuffer);
-        //std::vector<uint8_t> dataBytes = HexStringToBytes(dataBuffer);
+        // 根据按钮设置命令值
+        uint8_t Command = isSend ? 0xA3 : 0xA4;
 
-        //// 如果地址或数据为空，默认值为 0x00
-        //if (addressBytes.empty()) addressBytes.push_back(0x00);
-        //if (dataBytes.empty()) dataBytes.push_back(0x00);
+        // 将地址和数据转换为字节流
+        std::vector<uint8_t> addressBytesDis = HexStringToBytes(addressBuffer);
+        std::vector<uint8_t> dataBytesDis = HexStringToBytes(dataBuffer);
 
-        //// 拼接地址和数据
-        //std::vector<uint8_t> combinedBytes;
-        //combinedBytes.insert(combinedBytes.end(), addressBytes.begin(), addressBytes.end());
-        //combinedBytes.insert(combinedBytes.end(), dataBytes.begin(), dataBytes.end());
+        // 如果地址或数据为空，默认值为 0x00
+        if (addressBytesDis.empty()) addressBytesDis.push_back(0x00);
+        if (dataBytesDis.empty()) dataBytesDis.push_back(0x00);
 
-        //// 将拼接后的数据写入 mSendBuffer
-        //if (combinedBytes.size() <= sizeof(mSendBuffer))
-        //{
-        //    memcpy(mSendBuffer, combinedBytes.data(), combinedBytes.size());
-        //    memset(mSendBuffer + combinedBytes.size(), 0, sizeof(mSendBuffer) - combinedBytes.size()); // 清空剩余部分
-        //}
-        uint8_t Command = 0xA3;
+        // 拼接地址和数据
+        std::vector<uint8_t> combinedBytes;
+        combinedBytes.insert(combinedBytes.end(), addressBytesDis.begin(), addressBytesDis.end());
+        combinedBytes.insert(combinedBytes.end(), dataBytesDis.begin(), dataBytesDis.end());
+
         uint8_t addressBytes = ConvertHexStringToUint8(addressBuffer);
         uint8_t dataBytes = ConvertHexStringToUint8(dataBuffer);
         portdata.DataSendAnalysis(mSendBuffer, Command, addressBytes, dataBytes);
 
-        std::cout << "mSendBuffer Length1=  " << sizeof(mSendBuffer) << std::endl;
-
-        ///////////完成mSendBuffer帧拼接赋值后，进行16进制输出校验/////////////////
+        // 调试输出
+        std::cout << "mSendBuffer Length1= " << sizeof(mSendBuffer) << std::endl;
         std::cout << "mSendBuffer (hex) = ";
         for (size_t i = 0; i < 5; i++) {
             std::cout << std::hex << std::setw(2) << std::setfill('0')
                 << static_cast<unsigned int>(static_cast<uint8_t>(mSendBuffer[i])) << " ";
         }
-        ////////////////////////////////////////////////////////////////////////////////
+        std::cout << std::endl;
 
-
-        // 调用 SendData 函数，发送 mSendBuffer 的内容
+        // 发送数据并记录历史
         if (mIsPortOpen)
         {
-            SendData(); // 自动发送 mSendBuffer 的内容
-            //std::cout << "Data sent: ";
-            //for (uint8_t byte : combinedBytes)
-            //{
-            //    std::cout << std::hex << static_cast<int>(byte) << " ";
-            //}
-            //std::cout << std::endl;
-
-            // 将发送的数据添加到历史记录中
-            //std::string combinedHex = BytesToHexString(combinedBytes);
-            //mSendHistory.push_back(combinedHex);
+            SendData();
+            std::string combinedHex = BytesToHexString(combinedBytes);
+            mSendHistory.push_back(combinedHex);
         }
     }
 
