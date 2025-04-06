@@ -3,10 +3,11 @@
 #include "ImGuiWidget/TestClass.h"
 #include "ImGuiWidget/PWM_Slider.h"
 #include "ImGuiWidget/UART_DEC.h"
+#include "ImGuiWidget/RegMap.h"
 
 ImGuiApp::ImGuiApp(std::weak_ptr<MSCWindow> pWindow, bool bDockingEnabled)
     : mpWindow(pWindow),
-      mbDockingEnabled(bDockingEnabled)
+    mbDockingEnabled(bDockingEnabled)
 {
     ImGuiInit();
 }
@@ -47,10 +48,14 @@ void ImGuiApp::ImGuiInit()
     io.Fonts->AddFontFromFileTTF(R"(..\..\Resource\Fonts\Dengb.ttf)", 18.0f);
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsDark();
     //ImGui::StyleColorsClassic();
+    ImGui::StyleColorsLight();
 
-    SetDarkThemeColors();
+
+
+
+    SetLightThemeColors();
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
     ImGuiStyle& style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -79,12 +84,13 @@ void ImGuiApp::ImGuiInit()
     std::shared_ptr<TestClass> pTestClassWidget = std::make_shared<TestClass>();
     std::shared_ptr<PWM_Slider> pPWM_SliderWidget = std::make_shared<PWM_Slider>();
     std::shared_ptr<UART_DEC> pUART_DECWidget = std::make_shared<UART_DEC>();
-
+    std::shared_ptr<RegMap> pRegMapWidget = std::make_shared<RegMap>();
 
     //mWidgets.emplace_back(pExampleWidget);
     mWidgets.emplace_back(pTestClassWidget);
     mWidgets.emplace_back(pPWM_SliderWidget);
     mWidgets.emplace_back(pUART_DECWidget);
+    mWidgets.emplace_back(pRegMapWidget);
 }
 
 void ImGuiApp::ImGuiBeginRender()
@@ -96,10 +102,10 @@ void ImGuiApp::ImGuiBeginRender()
 
 void ImGuiApp::ImGuiRenderWidgets()
 {
-    if (mbDockingEnabled)
-    {
-        DockingSpace();
-    }
+    //if (mbDockingEnabled)
+    //{
+    //    DockingSpace();
+    //}
 
     for (const auto& tpWidget : mWidgets)
     {
@@ -110,8 +116,8 @@ void ImGuiApp::ImGuiRenderWidgets()
 void ImGuiApp::ImGuiEndRender()
 {
     ImGuiIO& io = ImGui::GetIO();
-    
-    io.DisplaySize = ImVec2((float)mpWindow.lock()->GetWidth(),  (float)mpWindow.lock()->GetHeight());
+
+    io.DisplaySize = ImVec2((float)mpWindow.lock()->GetWidth(), (float)mpWindow.lock()->GetHeight());
 
     // Rendering
     ImGui::Render();
@@ -213,4 +219,49 @@ void ImGuiApp::SetDarkThemeColors()
     colors[ImGuiCol_TitleBg] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
     colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
     colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+}
+
+void ImGuiApp::SetLightThemeColors()
+{
+    auto& colors = ImGui::GetStyle().Colors;
+
+    // 背景色
+    colors[ImGuiCol_WindowBg] = ImVec4{ 1.0f, 1.0f, 1.0f, 1.0f }; // 白色背景
+
+    // 标题栏
+    colors[ImGuiCol_TitleBg] = ImVec4{ 0.9f, 0.9f, 0.9f, 1.0f }; // 浅灰色标题栏
+    colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.95f, 0.95f, 0.95f, 1.0f }; // 浅灰色激活标题栏
+    colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.9f, 0.9f, 0.9f, 1.0f }; // 浅灰色折叠标题栏
+
+    // 按钮
+    colors[ImGuiCol_Button] = ImVec4{ 0.8f, 0.8f, 0.8f, 1.0f }; // 浅灰色按钮
+    colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.7f, 0.7f, 0.7f, 1.0f }; // 深灰色悬停按钮
+    colors[ImGuiCol_ButtonActive] = ImVec4{ 0.6f, 0.6f, 0.6f, 1.0f }; // 深灰色激活按钮
+
+    // 框架背景
+    colors[ImGuiCol_FrameBg] = ImVec4{ 0.95f, 0.95f, 0.95f, 1.0f }; // 浅灰色框架背景
+    colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.85f, 0.85f, 0.85f, 1.0f }; // 深灰色悬停框架背景
+    colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.75f, 0.75f, 0.75f, 1.0f }; // 深灰色激活框架背景
+
+    // 标签页
+    colors[ImGuiCol_Tab] = ImVec4{ 0.9f, 0.9f, 0.9f, 1.0f }; // 浅灰色标签页
+    colors[ImGuiCol_TabHovered] = ImVec4{ 0.8f, 0.8f, 0.8f, 1.0f }; // 深灰色悬停标签页
+    colors[ImGuiCol_TabActive] = ImVec4{ 0.85f, 0.85f, 0.85f, 1.0f }; // 浅灰色激活标签页
+    colors[ImGuiCol_TabUnfocused] = ImVec4{ 0.9f, 0.9f, 0.9f, 1.0f }; // 浅灰色未聚焦标签页
+    colors[ImGuiCol_TabUnfocusedActive] = ImVec4{ 0.85f, 0.85f, 0.85f, 1.0f }; // 浅灰色未聚焦激活标签页
+
+    // 文本颜色
+    colors[ImGuiCol_Text] = ImVec4{ 0.0f, 0.0f, 0.0f, 1.0f }; // 黑色文本
+
+    // 边框颜色
+    colors[ImGuiCol_Border] = ImVec4{ 0.5f, 0.5f, 0.5f, 0.5f }; // 灰色边框
+
+    // 滚动条
+    colors[ImGuiCol_ScrollbarBg] = ImVec4{ 0.95f, 0.95f, 0.95f, 1.0f }; // 浅灰色滚动条背景
+    colors[ImGuiCol_ScrollbarGrab] = ImVec4{ 0.7f, 0.7f, 0.7f, 1.0f }; // 深灰色滚动条抓取器
+    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4{ 0.6f, 0.6f, 0.6f, 1.0f }; // 深灰色悬停滚动条抓取器
+    colors[ImGuiCol_ScrollbarGrabActive] = ImVec4{ 0.5f, 0.5f, 0.5f, 1.0f }; // 深灰色激活滚动条抓取器
+
+    // 菜单栏
+    colors[ImGuiCol_MenuBarBg] = ImVec4{ 0.9f, 0.9f, 0.9f, 1.0f }; // 浅灰色菜单栏
 }

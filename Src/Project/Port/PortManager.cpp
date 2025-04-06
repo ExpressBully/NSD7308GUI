@@ -2,6 +2,10 @@
 #include "PortManager.h"
 #include <iostream>
 #include <thread>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 namespace Unit
 {
@@ -146,12 +150,18 @@ DCB PortManager::GetDefaultPortConfig() const
     return dcb;
 }
 
-void PortManager::SendData(const std::string& data)
+void PortManager::SendData(const char* data, size_t len)
 {
     std::lock_guard<std::mutex> lock(mMutex);
     if (mActivePort)
     {
-        mActivePort->SendData(data);
+        mActivePort->SendData(data, len);
+        std::cout << "data.c_str2 (hex) = ";
+        for (size_t i = 0; i < 5; i++) {
+            std::cout << std::hex << std::setw(2) << std::setfill('0')
+                << static_cast<unsigned int>(static_cast<uint8_t>(data[i])) << " ";
+        }
+
     }
 }
 

@@ -37,6 +37,7 @@ private:
     void DockingSpace();
 
     void SetDarkThemeColors();
+    void SetLightThemeColors();
 private:
     bool mbDockingEnabled;
     std::weak_ptr<MSCWindow> mpWindow;

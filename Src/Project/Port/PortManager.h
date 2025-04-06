@@ -26,7 +26,7 @@ public:
     const std::string& GetCurrentPort() const noexcept;
     const std::vector<std::string>& GetPortList() const noexcept;
 
-    void SendData(const std::string& data);
+    void PortManager::SendData(const char* data, size_t len);
     void ReceiveData(std::string& data);
 
     void SetDataReceivedCallback(DataReceivedCallback callback);

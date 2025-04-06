@@ -4,6 +4,10 @@
 #include <Windows.h>
 #include <string>
 #include <functional>
+#include <thread>
+#include <chrono>
+#include <stdexcept>
+#include <mutex>
 
 class PortData
 {
@@ -17,7 +21,7 @@ public:
 
     void ResetPort(HANDLE hPort, DCB& dcb);
 
-    void SendData(const std::string& data);
+    //void SendData(const std::string& data);
     void SendData(const char* data, int len);
     void ReceiveData(std::string& data);
     void ReceiveData(char* data, int len);
@@ -26,6 +30,9 @@ public:
     void SetErrorCallback(ErrorCallback callback);
 
     bool IsOpen() const;
+
+    bool DataRecAnalysis(const std::string& hexData, uint8_t& add, uint8_t& data); // 解析收到的帧格式函数，从接收到的数据中提取 ADD 和 DATA
+    void PortData::DataSendAnalysis(char* str, uint8_t Command, uint8_t add, uint8_t data); // 解析发送的帧格式函数，从发送的 ADD 和 DATA，组成下位机的16进制数
 
 protected:
     bool OpenPort();
@@ -39,3 +46,6 @@ private:
 };
 
 #endif // PORT_DATA_H
+
+
+
