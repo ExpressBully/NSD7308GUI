@@ -4,6 +4,7 @@
 #include "ImGuiWidget/PWM_Slider.h"
 #include "ImGuiWidget/UART_DEC.h"
 #include "ImGuiWidget/RegMap.h"
+#include "ImGuiWidget/RegData.h"
 
 ImGuiApp::ImGuiApp(std::weak_ptr<MSCWindow> pWindow, bool bDockingEnabled)
     : mpWindow(pWindow),
