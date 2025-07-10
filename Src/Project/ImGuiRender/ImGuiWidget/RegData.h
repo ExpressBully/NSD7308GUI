@@ -1,28 +1,31 @@
 #ifndef REGDATA_H
 #define REGDATA_H
 
+#define FrameLength 10
+
+
 #include "WidgetBase.h"
 #include <cstdint>
 
+// 声明全局寄存器变量
+extern uint8_t DEVICE_ID;
+extern uint8_t FAULT_SUMMARY;
+extern uint8_t STATUS1;
+extern uint8_t STATUS2;
+extern uint8_t COMMAND;
+extern uint8_t SPI_IN;
+extern uint8_t CONFIG1;
+extern uint8_t CONFIG2;
+extern uint8_t CONFIG3;
+extern uint8_t CONFIG4;
+
+//声明全局寄存器所用的标志位和变量
+extern bool ClickFlag; //记录GUI寄存器变量是否更改的Flag
+extern uint8_t ClickAddress; //记录click按下的时候变更的寄存器地址
+
 class RegData : public WidgetBase
 {
-
-
-public://定义各个寄存器数组
-    uint8_t DEVICE_ID;
-    uint8_t FAULT_SUMMARY;
-    uint8_t STATUS1;
-    uint8_t STATUS2;
-    uint8_t COMMAND;
-    uint8_t SPI_IN;
-    uint8_t CONFIG1;
-    uint8_t CONFIG2;
-    uint8_t CONFIG3;
-    uint8_t CONFIG4;
-
+    // 类定义保持不变（如果需要）
 };
 
-
 #endif
-#pragma once
-

@@ -5,10 +5,16 @@
 #include "ImGuiWidget/UART_DEC.h"
 #include "ImGuiWidget/RegMap.h"
 #include "ImGuiWidget/RegData.h"
+#include "ImGuiWidget/RegOperateInt.h"
+#include "ImGuiWidget/FuncButton.h"
+#include "ImGuiWidget/FaultState.h"
+#include "ImGuiWidget/ExtStateControl.h"
+#include "ImGuiWidget/TestModeReg.h"
+#include "ImGuiWidget/TestModeScript.h"
 
 ImGuiApp::ImGuiApp(std::weak_ptr<MSCWindow> pWindow, bool bDockingEnabled)
     : mpWindow(pWindow),
-    mbDockingEnabled(bDockingEnabled)
+    mbDockingEnabled(bDockingEnabled)   
 {
     ImGuiInit();
 }
@@ -73,25 +79,61 @@ void ImGuiApp::ImGuiInit()
         ImGui_ImplOpenGL3_Init("#version 410");
     }
 
+
+
     // Insert example widgets here 
     /***************
-    1. Eample
-    2.TestClass:Conclude a botton and PopupModal
-    3.PWM_Slider
-    4.
+    1. 串口小助手
+    2.寄存器表格
+    3.自选操作框
+    4.功能按键
+    5. Fault显示表
+    6、外部控制显示模块
 
+    6.TestModeReg 寄存器表
+    7.TestModeScript 脚本功能
     *******************/
     //std::shared_ptr<ExamplePage> pExampleWidget = std::make_shared<ExamplePage>();
-    std::shared_ptr<TestClass> pTestClassWidget = std::make_shared<TestClass>();
-    std::shared_ptr<PWM_Slider> pPWM_SliderWidget = std::make_shared<PWM_Slider>();
+    //std::shared_ptr<TestClass> pTestClassWidget = std::make_shared<TestClass>();
+    //std::shared_ptr<PWM_Slider> pPWM_SliderWidget = std::make_shared<PWM_Slider>();
     std::shared_ptr<UART_DEC> pUART_DECWidget = std::make_shared<UART_DEC>();
     std::shared_ptr<RegMap> pRegMapWidget = std::make_shared<RegMap>();
+    std::shared_ptr<RegOperateInt> pRegOperateIntWidget = std::make_shared<RegOperateInt>();
+    std::shared_ptr<FuncButton> pFuncButton = std::make_shared<FuncButton>();
+    std::shared_ptr<FaultState> pFaultState = std::make_shared<FaultState>();
+    std::shared_ptr<ExtStateControl> pExtStateControl = std::make_shared<ExtStateControl>();
+
+    std::shared_ptr<TestModeReg> pTestModeReg = std::make_shared<TestModeReg>();
+    std::shared_ptr<TestModeScript> pTestModeScript = std::make_shared<TestModeScript>();
 
     //mWidgets.emplace_back(pExampleWidget);
-    mWidgets.emplace_back(pTestClassWidget);
-    mWidgets.emplace_back(pPWM_SliderWidget);
+   // mWidgets.emplace_back(pTestClassWidget);
+    //mWidgets.emplace_back(pPWM_SliderWidget);
     mWidgets.emplace_back(pUART_DECWidget);
     mWidgets.emplace_back(pRegMapWidget);
+    mWidgets.emplace_back(pRegOperateIntWidget);
+    mWidgets.emplace_back(pFuncButton);
+    mWidgets.emplace_back(pFaultState);
+    mWidgets.emplace_back(pExtStateControl);
+
+    mWidgets.emplace_back(pTestModeReg);
+    mWidgets.emplace_back(pTestModeScript);
+
+
+    pUART_DECWidget->SetCallback([this](bool flag)
+        {
+            for (auto widget : mWidgets)
+            {
+                std::shared_ptr<UART_DEC> UART_DEC_DIS = std::dynamic_pointer_cast<UART_DEC>(widget);
+                if (UART_DEC_DIS)
+                {
+                    continue;
+                }
+                widget->RenderFlag(flag);
+            }
+        }
+    );
+
 }
 
 void ImGuiApp::ImGuiBeginRender()

@@ -122,9 +122,9 @@ HANDLE PortManager::CreatePort(const std::string& portName) const
 
     // 设置串口超时参数
     COMMTIMEOUTS timeouts = { 0 };
-    timeouts.ReadIntervalTimeout = 50;         // 字符间超时
-    timeouts.ReadTotalTimeoutConstant = 50;    // 读操作固定超时
-    timeouts.WriteTotalTimeoutConstant = 50;   // 写操作固定超时
+    timeouts.ReadIntervalTimeout = 10;         // 字符间超时
+    timeouts.ReadTotalTimeoutConstant = 30;    // 读操作固定超时
+    timeouts.WriteTotalTimeoutConstant = 10;   // 写操作固定超时
 
     if (!SetCommTimeouts(hPort, &timeouts))
     {
@@ -156,11 +156,11 @@ void PortManager::SendData(const char* data, size_t len)
     if (mActivePort)
     {
         mActivePort->SendData(data, len);
-        std::cout << "data.c_str2 (hex) = ";
-        for (size_t i = 0; i < 5; i++) {
-            std::cout << std::hex << std::setw(2) << std::setfill('0')
-                << static_cast<unsigned int>(static_cast<uint8_t>(data[i])) << " ";
-        }
+        //std::cout << "data.c_str2 (hex) = ";
+        //for (size_t i = 0; i < 10; i++) {
+        //    std::cout << std::hex << std::setw(2) << std::setfill('0')
+        //        << static_cast<unsigned int>(static_cast<uint8_t>(data[i])) << " ";
+        //}
 
     }
 }

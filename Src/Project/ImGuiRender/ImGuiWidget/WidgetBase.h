@@ -10,6 +10,14 @@ public:
     virtual ~WidgetBase() {}
 
     virtual void Render() = 0;
+
+    void RenderFlag(bool Flag) {
+        mIsRender = Flag;
+    }
+
+protected:
+    bool mIsRender = true;
+
 };
 
 #endif // WIDGET_BASE_H

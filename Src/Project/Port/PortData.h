@@ -8,6 +8,10 @@
 #include <chrono>
 #include <stdexcept>
 #include <mutex>
+#define FrameLen 10 //帧格式的长度，10个字节
+
+extern bool mIsPortOpen;                    // 串口是否打开
+extern bool mIsTestMode;                     //是否是测试模式，决定渲染的页面。
 
 class PortData
 {
@@ -29,10 +33,15 @@ public:
     void SetDataReceivedCallback(DataReceivedCallback callback);
     void SetErrorCallback(ErrorCallback callback);
 
-    bool IsOpen() const;
+    bool IsOpen() const;//
 
     bool DataRecAnalysis(const std::string& hexData, uint8_t& add, uint8_t& data); // 解析收到的帧格式函数，从接收到的数据中提取 ADD 和 DATA
-    void PortData::DataSendAnalysis(char* str, uint8_t Command, uint8_t add, uint8_t data); // 解析发送的帧格式函数，从发送的 ADD 和 DATA，组成下位机的16进制数
+    void DataSendAnalysis(char* str, uint8_t Command, uint8_t add, uint8_t data); // 单个字节读写，解析发送的帧格式函数，从发送的 ADD 和 DATA，组成下位机的16进制数
+
+    bool ContinuesDataRecAnalysis(const std::string& hexData, uint8_t DataNum, uint8_t(&data)[10]); // 连续接收指令用的解析函数
+    void ContinuesReadDataSendAnalysis(char* str, uint8_t Command, uint8_t AddNum, uint8_t(&Add)[10]); //连续读用的MCU帧合成函数
+
+
 
 protected:
     bool OpenPort();
@@ -43,7 +52,12 @@ private:
     DCB mDcb;
     DataReceivedCallback mDataReceivedCallback;
     ErrorCallback mErrorCallback;
-};
+
+    //char mReadBuffer[1024];          // 异步读取缓冲区
+    //bool mReadPending;               // 标记是否有未完成的异步读取操作
+    //OVERLAPPED mReadOverlapped;      // 异步读取操作结构
+
+    };
 
 #endif // PORT_DATA_H
 

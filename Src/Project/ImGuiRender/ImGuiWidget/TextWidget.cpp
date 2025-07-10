@@ -13,6 +13,8 @@ void TextWidget::Render()
     // Create a main window
     ImGui::Begin("Main Window");
     static bool show_popup = false;
+         
+
     // Button to open a popup
     if (ImGui::Button("Open Popup")) {
         show_popup = true;
