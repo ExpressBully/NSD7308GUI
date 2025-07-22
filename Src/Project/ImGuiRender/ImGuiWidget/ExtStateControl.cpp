@@ -3,7 +3,7 @@
 #include <imgui_internal.h>
 #define STB_IMAGE_IMPLEMENTATION // 必须定义一次
 #include "stb_image.h"     
-#include <GL/gl.h>   // 定义GLuint等OpenGL类型
+#include <glad/glad.h>  // 定义GLuint等OpenGL类型
 
 Timer timer;
 
@@ -14,7 +14,7 @@ ExtStateControl::ExtStateControl()
     , PWM_IN2(50)
     , m_arrowDirection(ArrowDirection::LEFT_ARROW)
 {
-    if (!LoadTexture("E:/PCCodeLearning/TestGUI/NSD7308GUI2/NSD7308GUI/Resource/Picture/Funtion.png")) {
+    if (!LoadTexture("../../Resource/Picture/Funtion.png")) {
     //if (!LoadTexture(RESOURCE_DIR "/Picture/Funtion.png")) {
         printf("Warning: Failed to load circuit diagram texture\n");
     }

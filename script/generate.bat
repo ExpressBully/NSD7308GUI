@@ -19,7 +19,7 @@ if "%2"=="static" set SHARED_LIBRARY=OFF
 
 :: 设置构建目录和输出目录
 set BUILD_DIR=%PROJECT_DIR%\build\%CONFIGURATION%
-set OUTPUT_DIR=%PROJECT_DIR%\out\%CONFIGURATION%
+set OUTPUT_DIR=%PROJECT_DIR%\build\%CONFIGURATION%
 
 :: 输出正在使用的构建配置
 echo Using %CONFIGURATION% configuration.

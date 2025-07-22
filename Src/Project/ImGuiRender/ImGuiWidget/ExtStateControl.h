@@ -8,11 +8,7 @@
 #include "UART_DEC.h"
 #include "Timer.h"
 #include "RegData.h"
-#include <windows.h> // 必须放在gl.h之前
-#include <GL/gl.h>   // 定义GLuint等OpenGL类型
-//#define STB_IMAGE_IMPLEMENTATION // 必须定义一次
-#include "stb_image.h"     
-
+#include <windows.h> 
 
 class ExtStateControl : public WidgetBase
 {
